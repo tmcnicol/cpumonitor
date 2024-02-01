@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"time"
@@ -10,17 +11,15 @@ import (
 )
 
 func main() {
-
 	ticker := time.NewTicker(time.Second)
-	fmt.Println(ticker)
 	go func() {
-		for t := range ticker.C {
-			utilization, err := cpu.Percent(time.Second, false)
+		for range ticker.C {
+			utilization, err := cpu.Percent(time.Second, true)
 			if err != nil {
-				fmt.Println("Something fucked up")
+				slog.Error("error reading cpu", "err", err)
+				continue
 			}
-			fmt.Println(t, utilization)
-
+			slog.Info("current usage", "utilization", utilization, "num_cpu", len(utilization))
 		}
 	}()
 
